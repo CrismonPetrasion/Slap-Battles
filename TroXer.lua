@@ -1,3 +1,7 @@
+if not game:IsLoaded() then
+    game.Loaded:Wait()
+end
+
 if game.PlaceId == 6403373529 then
     local Player = game.Players.LocalPlayer
     local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
@@ -37,8 +41,10 @@ if game.PlaceId == 6403373529 then
         })
     end
 
+    _G.InfiniteJump = false
     _G.Key = "7z0q41yGlGs6U5gF"
     _G.KeyInput = "string"
+    
 
     function ScriptHub()
         print("Player who is logged name is ".. Player.Name ..".")
@@ -104,9 +110,45 @@ if game.PlaceId == 6403373529 then
             end
         })
 
+        local Slider3 = PlayerTab:AddSlider({
+            Name = "Player's Gravity",
+            Min = 0,
+            Max = 350,
+            Defualt = 16,
+            Color = Color3.fromRGB(255,255,255),
+            Increment = 1,
+            ValueName = "Gravity",
+            Callback = function(Value)
+                workspace.Gravity = Value
+            end
+        })
+
+        local Button = PlayerTab:AddButton({
+            Name = "Infinite Jump",
+            Callback = function()
+                _G.InfiniteJump = true
+                if _G.InfiniteJump == true then
+                    local Bypass;
+                    Bypass = hookmetamethod(game, "__namecall", function(method, ...) 
+                     if getnamecallmethod() == "FireServer" and method == game.ReplicatedStorage.Ban then
+                         return
+                     elseif getnamecallmethod() == "FireServer" and method == game.ReplicatedStorage.WalkSpeedChanged then
+                         return
+                     elseif getnamecallmethod() == "FireServer" and method == game.ReplicatedStorage.AdminGUI then
+                         return
+                     end
+                     return Bypass(method, ...)
+                 end) 
+                 game:GetService("UserInputService").JumpRequest:Connect(function()
+                    game:GetService("Players").LocalPlayer.Character:FindFirstChild("Humanoid"):ChangeState("Jumping")
+                 end)  
+                end
+            end
+        })
+
         local Toogle = MiscTab:AddToogle({
             Name = "Anti-Void",
-            Defualt = nil,
+            Defualt = false,
             Callback = function(Value)
                 print("Pressed")
                 if Value == false then
@@ -122,6 +164,7 @@ if game.PlaceId == 6403373529 then
                     local DestroyPart = workspace.AntiVoid
                     DestroyPart:Destroy()
                 elseif Value == nil then
+                    warn("Error")
                     Value = false
                 end
             end
